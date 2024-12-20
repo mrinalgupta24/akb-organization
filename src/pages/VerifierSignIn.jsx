@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import img1 from "../assets/fundraising.png";
-import { TextField, Checkbox, FormControlLabel } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { useNavigate } from "react-router";
 import api from "../api.js";
 import { Link } from "react-router-dom";
@@ -10,6 +17,8 @@ const VerifierSignIn = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const navigate = useNavigate();
 
@@ -30,42 +39,46 @@ const VerifierSignIn = () => {
     };
 
     try {
-      const response = await api.post('/api/login_organization/', data);
-      
+      const response = await api.post("/api/login_organization/", data);
+
       console.log("Login response:", response.data);
 
       if (response.data.access && response.data.refresh) {
         localStorage.setItem("accessToken", response.data.access);
         localStorage.setItem("refreshToken", response.data.refresh);
+        setOpenSnackbar(true);
         navigate("/organization-home");
       } else {
         throw new Error("Invalid response format");
       }
     } catch (error) {
-      console.error("Login error details:", error.response?.data || error.message);
+      console.error(
+        "Login error details:",
+        error.response?.data || error.message
+      );
       setError(
         error.response?.data?.message ||
-        error.response?.data?.detail ||
-        "Invalid login credentials. Please try again."
+          error.response?.data?.detail ||
+          "Invalid login credentials. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSnackbarClose = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-gray-50 p-6 lg:gap-16">
-      {/* Image Section */}
+    <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-white p-4 lg:gap-16">
+      {/* img part */}
       <div className="w-full lg:w-1/3 p-4">
-        <img
-          src={img1}
-          alt="fundraising"
-          className="w-full h-auto rounded-md shadow-md"
-        />
+        <img src={img1} alt="fundraising img" className="w-full h-auto" />
       </div>
 
-      {/* Form Section */}
-      <div className="w-full lg:w-1/3 p-8 bg-white rounded-lg shadow-lg mt-6 lg:mt-0">
+      {/* right */}
+      <div className="w-full lg:w-1/3 p-8 bg-white rounded-lg shadow-xl mt-4">
         <h2 className="text-4xl font-bold text-gray-900 mb-6 text-center">
           Welcome back
         </h2>
@@ -74,7 +87,7 @@ const VerifierSignIn = () => {
           Enter your credentials to log in
         </p>
 
-        <form onSubmit={handleSignIn} className="space-y-4">
+        <form className="space-y-4">
           <TextField
             fullWidth
             label="Phone Number"
@@ -83,7 +96,6 @@ const VerifierSignIn = () => {
             className="mb-4"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
-            disabled={isLoading}
           />
           <TextField
             fullWidth
@@ -93,50 +105,75 @@ const VerifierSignIn = () => {
             className="mb-4"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
           />
           <div className="flex justify-between items-center mb-4">
-            <FormControlLabel control={<Checkbox />} label="Remember me" />
-            <a href="/" className="text-blue-600 hover:underline">
-              Forgot password?
-            </a>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
+              }
+              label="Remember me"
+            />
+            <Link to="/forget-password">Forgot password?</Link>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-200"
-            disabled={isLoading}
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            className="mb-4 h-12 font-extrabold rounded-lg"
+            onClick={handleSignIn}
           >
-            {isLoading ? "Signing in..." : "Sign In"}
-          </button>
+            Sign In
+          </Button>
 
-          <div className="flex items-center justify-center my-4">
+          <div className="flex items-center justify-center mb-4">
             <span className="text-gray-400 mx-2">or</span>
           </div>
 
-          <button
-            type="button"
-            className="w-full flex items-center justify-center bg-gray-900 text-white font-semibold py-3 rounded-lg hover:bg-gray-800 transition duration-200"
+          <Button
+            fullWidth
+            color="primary"
+            className="h-12 bg-gray-950 rounded-md"
           >
             <img
               src="https://img.icons8.com/?size=100&id=17949&format=png&color=000000"
-              className="h-4 w-4 mr-3"
-              alt="Google Icon"
+              className="h-4 w-4 "
             />
-            Sign in with Google
-          </button>
+            <span className="text-black font-semibold ml-3 ">
+              Sign in with Google
+            </span>
+          </Button>
 
-          <p className="text-center mt-6 text-gray-600">
-            Don't have an account?{" "}
-            <Link
-              to="/sign-up"
-              className="text-blue-600 hover:underline font-semibold"
-            >
-              Create a free account
+          <p className="text-center mt-6 text-gray-600 font-semibold text-sm">
+            Don’t have an account? <br />
+            <Link to="/sign-up">
+              <span className="text-blue-600">Create a free account</span>
             </Link>
           </p>
         </form>
       </div>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          Sign in successful!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

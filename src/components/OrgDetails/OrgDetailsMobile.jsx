@@ -38,11 +38,11 @@ const OrgDetailsMobile = () => {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Number of Donations</span>
-              <span className="font-medium">{data.total_donors}</span>
+              <span className="font-medium">{data.total_donations_count}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Donors Contributed</span>
-              <span className="font-medium">{data.total_donations_count}</span>
+              <span className="font-medium">{data.total_donors}</span>
             </div>
           </div>
         </div>
@@ -54,13 +54,13 @@ const OrgDetailsMobile = () => {
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Number of Donations</span>
               <span className="font-medium">
-                {data.categories.food.total_donors}
+                {data.categories.food.total_donations_count}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Donors contributed</span>
               <span className="font-medium">
-                {data.categories.food.total_donations_count}
+                {data.categories.food.total_donors}
               </span>
             </div>
           </div>
@@ -73,13 +73,13 @@ const OrgDetailsMobile = () => {
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Number of Donations</span>
               <span className="font-medium">
-                {data.categories.stray.total_donors}
+                {data.categories.stray.total_donations_count}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Donors contributed</span>
               <span className="font-medium">
-                {data.categories.stray.total_donations_count}
+                {data.categories.stray.total_donors}
               </span>
             </div>
           </div>
@@ -92,13 +92,13 @@ const OrgDetailsMobile = () => {
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Number of Donations</span>
               <span className="font-medium">
-                {data.categories.groceries.total_donors}
+                {data.categories.groceries.total_donations_count}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Total Donors contributed</span>
               <span className="font-medium">
-                {data.categories.groceries.total_donations_count}
+                {data.categories.groceries.total_donors}
               </span>
             </div>
 

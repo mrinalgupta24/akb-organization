@@ -91,8 +91,8 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
 
     if (video) {
       // Set canvas dimensions for portrait orientation
-      canvas.width = video.videoHeight;
-      canvas.height = video.videoWidth;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
 
       if (facingMode === "user") {
@@ -100,16 +100,13 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
         ctx.scale(-1, 1);
       }
 
-      // Rotate the canvas to capture the video in portrait mode
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate((90 * Math.PI) / 180);
-      ctx.drawImage(video, -video.videoWidth / 2, -video.videoHeight / 2);
+      // Draw the video frame to the canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          // Reset transformations and draw the donor card at the top left of the canvas
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          // Draw the donor card at the top left of the canvas
           const scale = 0.5; // Scale down the donor card
           ctx.drawImage(
             donorCardCanvas,
@@ -219,7 +216,6 @@ const ImagesGrid = ({ images }) => (
       {images.map((image, index) => (
         <div key={index} className="bg-gray-200 p-2 shadow-lg rounded-md">
           <img
-            src={image} // Use the image URL directly
             alt={`Uploaded ${index + 1}`}
             className="w-full h-auto object-cover rounded"
           />
@@ -232,6 +228,7 @@ const ImagesGrid = ({ images }) => (
 const GroceriesMobileComponent = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [viewUploadedImages, setViewUploadedImages] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [donorInfo, setDonorInfo] = useState({
@@ -247,7 +244,6 @@ const GroceriesMobileComponent = () => {
     additional_img: false,
   });
   const [currentType, setCurrentType] = useState("");
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [uploadedData, setUploadedData] = useState({
     bill: null,
     groceries: null,
@@ -263,38 +259,37 @@ const GroceriesMobileComponent = () => {
         });
         if (response.data) {
           setDonorInfo(response.data);
-          // Fetch images after setting donor info
-          fetchUploadedImages(response.data.donation_id);
         }
       } catch (error) {
         console.error("Error fetching donor info:", error);
       }
     };
 
-    const fetchUploadedImages = async (donationId) => {
-      try {
-        // Construct the URL dynamically using donation_id from the donor info
-        const apiUrl = `/api/get_uploaded_img/?donation_id=${donationId}`;
-        console.log("Fetching images from:", apiUrl);
+    fetchDonorInfo();
 
-        const response = await api.get(apiUrl);
-        console.log("Fetched Images Response:", response.data);
-
-        setUploadedImages(
-          [
-            response.data.bill,
-            response.data.groceries,
-            response.data.donation_img,
-            response.data.additional_img,
-          ].filter(Boolean)
-        ); // Filter out any null or undefined values
-      } catch (error) {
-        console.error("Error fetching uploaded images:", error);
-      }
+    const handlePopState = (event) => {
+      event.preventDefault();
+      setShowExitConfirmation(true);
+      window.history.pushState(null, null, window.location.href);
     };
 
-    fetchDonorInfo();
+    window.addEventListener("popstate", handlePopState);
+    window.history.pushState(null, null, window.location.href);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
   }, []);
+
+  const handleExit = async () => {
+    try {
+      await api.post("/api/unblock/");
+    } catch (error) {
+      console.error("Error calling unblock API:", error);
+    } finally {
+      window.location.href = "/select-donation-category";
+    }
+  };
 
   const handleCameraClose = () => {
     setShowCamera(false);
@@ -310,103 +305,30 @@ const GroceriesMobileComponent = () => {
     setShowCamera(true);
   };
 
-  const handleAccept = async () => {
-    try {
-      console.log("Capture Details:", {
-        donationId: donorInfo.donation_id,
-        imageLength: capturedImage ? capturedImage.length : "No image",
-        currentType: currentType,
-      });
-
-      const blob = await fetch(capturedImage)
-        .then((res) => res.blob())
-        .then((blob) => new Blob([blob], { type: "image/jpeg" })); // Ensure the correct MIME type
-
-      const formData = new FormData();
-      formData.append("img", blob);
-      formData.append("donation_id", donorInfo.donation_id);
-      formData.append("type", currentType);
-
-      const response = await api.post(
-        "/api/upload_donation2_images/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      // Enhanced logging
-      console.log("Upload Response:", response);
-
-      if (response.status === 200) {
-        // Use status code for success
-        setCapturedImage(null);
-        setShowCamera(false);
-        setUploadedStatus((prevStatus) => ({
-          ...prevStatus,
-          [currentType]: true,
-        }));
-        setUploadedData((prevData) => ({
-          ...prevData,
-          [currentType]: capturedImage,
-        }));
-      } else {
-        throw new Error("Upload failed");
-      }
-    } catch (error) {
-      console.error("Detailed Capture Error:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
-      alert(`Failed to upload ${currentType} image: ${error.message}`);
-    }
+  const handleAccept = () => {
+    setUploadedData((prevData) => ({
+      ...prevData,
+      [currentType]: capturedImage,
+    }));
+    setUploadedStatus((prevStatus) => ({
+      ...prevStatus,
+      [currentType]: true,
+    }));
+    setCapturedImage(null);
+    setShowCamera(false);
   };
 
-  const handleFileUpload = async (event, type) => {
+  const handleFileUpload = (event, type) => {
     const file = event.target.files[0];
     if (file) {
-      const formData = new FormData();
-      formData.append("img", file);
-      formData.append("donation_id", donorInfo.donation_id);
-      formData.append("type", type);
-
-      try {
-        const response = await api.post(
-          "/api/upload_donation2_images/",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        console.log("Full API Response:", response);
-
-        if (response.status === 200) {
-          setUploadedStatus((prevStatus) => ({
-            ...prevStatus,
-            [type]: true,
-          }));
-
-          setUploadedData((prevData) => ({
-            ...prevData,
-            [type]: URL.createObjectURL(file),
-          }));
-        } else {
-          throw new Error("Upload failed");
-        }
-      } catch (error) {
-        console.error("Detailed Error:", {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-        });
-        alert(`Failed to upload ${type} image: ${error.message}`);
-      }
+      setUploadedData((prevData) => ({
+        ...prevData,
+        [type]: URL.createObjectURL(file),
+      }));
+      setUploadedStatus((prevStatus) => ({
+        ...prevStatus,
+        [type]: true,
+      }));
     }
   };
 
@@ -467,6 +389,32 @@ const GroceriesMobileComponent = () => {
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
         Organization Dashboard
       </header>
+
+      {showExitConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-bold">Do you want to exit?</h2>
+            <p className="text-gray-600">
+              Are you sure you want to leave this page? Your progress may be
+              lost.
+            </p>
+            <div className="flex gap-4 mt-4">
+              <button
+                className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600"
+                onClick={() => setShowExitConfirmation(false)}
+              >
+                No
+              </button>
+              <button
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+                onClick={handleExit}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {viewUploadedImages ? (
         <ImagesGrid images={uploadedImages} />
@@ -588,28 +536,6 @@ const GroceriesMobileComponent = () => {
           name={donorInfo.name}
           category={donorInfo.category}
         />
-      )}
-
-      {showConfirmation && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <p className="mb-4">Are you sure you want to leave?</p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setShowConfirmation(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600"
-              >
-                No
-              </button>
-              <button
-                onClick={handleUnblock}
-                className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600"
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       <footer className="w-full py-4 text-center bg-gray-200 font-bold mt-auto">

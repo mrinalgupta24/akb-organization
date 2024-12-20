@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api";
 
 const ContactHelpMobile = () => {
@@ -7,6 +8,8 @@ const ContactHelpMobile = () => {
     description: "",
     documents: null,
   });
+  const [imagePreview, setImagePreview] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,6 +29,8 @@ const ContactHelpMobile = () => {
 
       if (response.status === 200) {
         console.log("File uploaded successfully");
+        window.alert("File uploaded successfully");
+        navigate("/organization-home");
       } else {
         console.error(
           "File upload failed",
@@ -51,10 +56,12 @@ const ContactHelpMobile = () => {
   };
 
   const handleFileChange = (e) => {
+    const file = e.target.files[0];
     setFormData((prevState) => ({
       ...prevState,
-      documents: e.target.files[0],
+      documents: file,
     }));
+    setImagePreview(URL.createObjectURL(file));
   };
 
   return (
@@ -113,6 +120,16 @@ const ContactHelpMobile = () => {
               <span className="text-sm text-gray-600">Upload</span>
             </label>
           </div>
+          {imagePreview && (
+            <div className="mt-4 flex justify-center">
+              <img
+                src={imagePreview}
+                alt="Document Preview"
+                style={{ maxWidth: "200px", maxHeight: "200px" }}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          )}
         </div>
 
         <button
