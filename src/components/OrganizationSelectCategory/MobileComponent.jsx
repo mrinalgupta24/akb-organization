@@ -15,8 +15,8 @@ const MobileComponent = () => {
         {/* Title */}
         <h2 className="text-center text-xl font-semibold">Select Category</h2>
         {/* Category Buttons */}
-        <CategoryButton text="Feed Food for Needy" route="/feed-food" />
-        <CategoryButton text="Feed for Stray Cats / Dogs" route="/feed-stray" />
+        <CategoryButton text="Feed Food for Needy" route="/organization/feed-food" />
+        <CategoryButton text="Feed for Stray Cats / Dogs" route="/organization/feed-stray" />
         {/* <CategoryButton
           text="Provide Medicines to the Poor"
           route="/provide-medicines"
@@ -25,7 +25,7 @@ const MobileComponent = () => {
           text="Sanitary Pads to Poor Girls"
           route="/sanitary-pads"
         /> */}
-        <CategoryButton text="Groceries to Poor" route="/groceries-to-poor" />
+        <CategoryButton text="Groceries to Poor" route="/organization/groceries-to-poor" />
       </div>
 
       {/* Footer */}

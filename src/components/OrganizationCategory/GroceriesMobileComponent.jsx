@@ -5,35 +5,26 @@ import img1 from "../../assets/fundraising.png";
 import html2canvas from "html2canvas";
 
 const DonorCardOverlay = ({ name, category }) => (
-  <div className="absolute top-3 left-4 w-[150px]" id="donor-card-overlay">
-    <div className="bg-gradient-to-b from-blue-900 to-blue-950 overflow-hidden shadow-lg">
-      <div className="bg-blue-800 p-1.5 text-center">
-        <h1 className="text-xs font-bold text-white tracking-wide m-0">
-          AKB FOUNDATION
-        </h1>
-      </div>
-      <div className="relative p-3">
-        <div className="relative mx-auto w-12 h-12 mb-2">
-          <div className="absolute inset-0 border-2 border-blue-400 shadow-lg overflow-hidden">
-            <div className="w-full h-full bg-blue-200/20" />
-          </div>
-          <div className="absolute -inset-1 border-2 border-blue-300/30 animate-spin-slow" />
-        </div>
-        <div className="space-y-1.5">
-          <div className="bg-white/90 text-blue-900 py-0.5 px-2 font-bold text-[8px] inline-block">
-            GIVE GROCERIES TO POOR
-          </div>
-          <div className="text-white space-y-1">
-            <p className="text-[10px] font-bold text-center uppercase m-0">
-              {name || "DONOR NAME"}
-            </p>
-            <div className="h-px w-12 mx-auto bg-blue-400/50" />
-            <p className="text-[8px] text-blue-200 italic text-center m-0">
-              Making Change Together
-            </p>
-          </div>
+  <div
+    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[300px] p-4 bg-white shadow-lg rounded-lg"
+    id="donor-card-overlay"
+  >
+    <div className="flex flex-col items-center">
+      <div className="w-20 h-20 rounded-full bg-blue-200 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-full bg-blue-400 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-blue-600" />
         </div>
       </div>
+      <h1 className="text-lg font-bold text-blue-900 mb-2">AKB FOUNDATION</h1>
+      <div className="bg-blue-100 text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
+        GIVE GROCERIES TO POOR
+      </div>
+      <p className="text-sm text-center font-bold uppercase text-blue-900 mb-1">
+        {name || "DONOR NAME"}
+      </p>
+      <p className="text-xs text-center text-black italic font-semibold">
+        Making Change Together
+      </p>
     </div>
   </div>
 );
@@ -90,7 +81,6 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
     const video = videoRef.current;
 
     if (video) {
-      // Set canvas dimensions for portrait orientation
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
@@ -100,28 +90,24 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
         ctx.scale(-1, 1);
       }
 
-      // Draw the video frame to the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          // Draw the donor card at the top left of the canvas
-          const scale = 0.5; // Scale down the donor card
-          ctx.drawImage(
-            donorCardCanvas,
-            20, // Adjust the x position as needed
-            20, // Adjust the y position as needed
-            donorCardCanvas.width * scale,
-            donorCardCanvas.height * scale
-          );
-          const imageData = canvas.toDataURL("image/jpeg", 0.8);
-          onCapture && onCapture(imageData);
+          const scale = 0.8; // Increased scale for larger overlay
+          const cardWidth = donorCardCanvas.width * scale;
+          const cardHeight = donorCardCanvas.height * scale;
+          const x = (canvas.width - cardWidth) / 2; // Center horizontally
+          const y = canvas.height - cardHeight - 40; // Position from bottom with padding
+
+          ctx.drawImage(donorCardCanvas, x, y, cardWidth, cardHeight);
+          const imageData = canvas.toDataURL("image/jpeg", 1.0);
+          onCapture(imageData);
         });
       } else {
-        console.error("Donor card overlay not found.");
-        const imageData = canvas.toDataURL("image/jpeg", 0.8);
-        onCapture && onCapture(imageData);
+        const imageData = canvas.toDataURL("image/jpeg", 1.0);
+        onCapture(imageData);
       }
     }
   };
@@ -287,7 +273,7 @@ const GroceriesMobileComponent = () => {
     } catch (error) {
       console.error("Error calling unblock API:", error);
     } finally {
-      window.location.href = "/select-donation-category";
+      window.location.href = "/organization/select-donation-category";
     }
   };
 
@@ -305,17 +291,18 @@ const GroceriesMobileComponent = () => {
     setShowCamera(true);
   };
 
-  const handleAccept = () => {
-    setUploadedData((prevData) => ({
-      ...prevData,
-      [currentType]: capturedImage,
-    }));
-    setUploadedStatus((prevStatus) => ({
-      ...prevStatus,
-      [currentType]: true,
-    }));
-    setCapturedImage(null);
-    setShowCamera(false);
+  const handleAccept = async () => {
+    try {
+      await api.post("/api/upload_donation_images/", {
+        img: capturedImage,
+        donation_id: donorInfo.donation_id,
+        type: "donation_img",
+      });
+      window.alert("Submission successful");
+      window.location.href = "/organization/select-donation-category";
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
   };
 
   const handleFileUpload = (event, type) => {

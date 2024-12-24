@@ -47,7 +47,7 @@ const VerifierSignIn = () => {
         localStorage.setItem("accessToken", response.data.access);
         localStorage.setItem("refreshToken", response.data.refresh);
         setOpenSnackbar(true);
-        navigate("/organization-home");
+        navigate("/organization/organization-home");
       } else {
         throw new Error("Invalid response format");
       }

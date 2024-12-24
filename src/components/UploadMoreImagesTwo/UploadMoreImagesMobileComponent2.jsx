@@ -43,7 +43,7 @@ const UploadMoreImagesMobileComponent2 = ({
             [currentImageType]: reader.result,
           }));
         }
-        navigate("/uploaded-images-two"); // Redirect after uploading
+        navigate("/organization/uploaded-images-two"); // Redirect after uploading
       };
       reader.readAsDataURL(file);
     }
@@ -106,7 +106,7 @@ const UploadMoreImagesMobileComponent2 = ({
           className={`mx-auto w-3/4 py-3 ${getImageStatusColor(
             IMAGE_TYPES.BILL
           )} text-white rounded-full text-sm font-semibold hover:opacity-90 flex items-center justify-center gap-2`}
-          onClick={() => navigate("/upload-bills")}
+          onClick={() => navigate("/organization/upload-bills")}
         >
           <Camera size={20} />
           Upload Bill {capturedImages[IMAGE_TYPES.BILL] && "✓"}
@@ -132,7 +132,7 @@ const UploadMoreImagesMobileComponent2 = ({
         </button>
         <button
           className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-          onClick={() => navigate("/uploaded-images-two")}
+          onClick={() => navigate("/organization/uploaded-images-two")}
         >
           <ImageIcon size={20} />
           View Uploaded Images

@@ -19,27 +19,27 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<VerifierSignIn />} />
-        <Route path="/organization-home" element={<OrganizationHome />} />
+        <Route path="/organization/organization-home" element={<OrganizationHome />} />
         <Route
-          path="select-donation-category"
+          path="/organization/select-donation-category"
           element={<OrganizationSelectCategory />}
         />
-        <Route path="/feed-food" element={<FeedFoodCategory />} />
+        <Route path="/organization/feed-food" element={<FeedFoodCategory />} />
         <Route
-          path="/feed-stray"
+          path="/organization/feed-stray"
           element={<FeedStrayMobileComponent />}
         />
         <Route
-          path="/groceries-to-poor"
+          path="/organization/groceries-to-poor"
           element={<GroceriesMobileComponent />}
         />
-        <Route path="/uploadmoreimage" element={<UploadMoreImages />} />
-        <Route path="/uploadmoreimagetwo" element={<UploadMoreImagesTwo />} />
-        <Route path="/uploaded-images-two" element={<UploadedImagesTwo />} />
+        <Route path="/organization/uploadmoreimage" element={<UploadMoreImages />} />
+        <Route path="/organization/uploadmoreimagetwo" element={<UploadMoreImagesTwo />} />
+        <Route path="/organization/uploaded-images-two" element={<UploadedImagesTwo />} />
         <Route path="" element={<ImagePreview />} />
-        <Route path="/upload-bills" element={<UploadBill />} />
-        <Route path="/orgn-details" element={<OrgDetails />} />
-        <Route path="/contact-help" element={<ContactHelp />} />
+        <Route path="/organization/upload-bills" element={<UploadBill />} />
+        <Route path="/organization/orgn-details" element={<OrgDetails />} />
+        <Route path="/organization/contact-help" element={<ContactHelp />} />
         {/* New route */}
       </Routes>
     </BrowserRouter>

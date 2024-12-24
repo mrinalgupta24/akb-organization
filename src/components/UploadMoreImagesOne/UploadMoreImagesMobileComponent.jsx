@@ -137,7 +137,7 @@ const UploadMoreImagesMobileComponent = ({
   const handleAccept = () => {
     console.log("Image accepted:", capturedImage);
     setCapturedImage(null); // Reset capturedImage to allow multiple accepts
-    navigate("/uploadmoreimage"); // Redirect to uploadmoreimage.jsx
+    navigate("/organization/uploadmoreimage"); // Redirect to uploadmoreimage.jsx
   };
 
   return (
@@ -172,7 +172,7 @@ const UploadMoreImagesMobileComponent = ({
           <div className="flex flex-col w-full max-w-md space-y-4 px-4">
             <button
               className="mx-auto w-3/4 py-3 bg-[#407daa] text-white rounded-full text-sm font-semibold hover:bg-blue-700 flex items-center justify-center gap-2"
-              onClick={() => navigate("/uploaded-images")}
+              onClick={() => navigate("/organization/uploaded-images")}
             >
               <ImageIcon size={20} />
               View Uploaded Images

@@ -45,13 +45,13 @@ const MobileComponent = () => {
       {/* Action Buttons */}
       <div className="space-y-4">
         <button
-          onClick={() => navigate("/orgn-details")}
+          onClick={() => navigate("/organization/orgn-details")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           View Organization Donation <span>&#8250;</span>
         </button>
         <button
-          onClick={() => navigate("/select-donation-category")}
+          onClick={() => navigate("/organization/select-donation-category")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           Upload Donation Photos <span>&#8250;</span>
@@ -63,13 +63,13 @@ const MobileComponent = () => {
           Resume Uploading Photos <span>&#8250;</span>
         </button> */}
         <button
-          onClick={() => navigate("/upload-bills")}
+          onClick={() => navigate("/organization/upload-bills")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           Upload Expenses Bills <span>&#8250;</span>
         </button>
         <button
-          onClick={() => navigate("/contact-help")}
+          onClick={() => navigate("/organization/contact-help")}
           className="w-full bg-white text-gray-800 p-4 rounded-lg shadow flex justify-between items-center"
         >
           Contact Help <span>&#8250;</span>
