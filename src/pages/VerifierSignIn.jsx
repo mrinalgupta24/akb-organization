@@ -7,7 +7,10 @@ import {
   FormControlLabel,
   Snackbar,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router";
 import api from "../api.js";
 import { Link } from "react-router-dom";
@@ -15,21 +18,30 @@ import { Link } from "react-router-dom";
 const VerifierSignIn = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const handleMouseDownPassword = (event) => event.preventDefault();
+
+  useEffect(() => {
+    const storedPhoneNumber = localStorage.getItem("phoneNumber");
+    if (storedPhoneNumber) {
+      setPhoneNumber(storedPhoneNumber);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleSignIn = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
 
     if (!phoneNumber || !password) {
       setError("Please fill in all fields");
-      setIsLoading(false);
       return;
     }
 
@@ -37,36 +49,36 @@ const VerifierSignIn = () => {
       phone_number: phoneNumber,
       password: password,
     };
-
     try {
       const response = await api.post("/api/login_organization/", data);
 
-      console.log("Login response:", response.data);
+      localStorage.setItem("accessToken", response.data.access);
+      localStorage.setItem("refreshToken", response.data.refresh);
 
-      if (response.data.access && response.data.refresh) {
-        localStorage.setItem("accessToken", response.data.access);
-        localStorage.setItem("refreshToken", response.data.refresh);
-        setOpenSnackbar(true);
-        navigate("/organization/organization-home");
+      if (rememberMe) {
+        // If "Remember Me" is checked, store phone number in localStorage
+        localStorage.setItem("phoneNumber", phoneNumber);
       } else {
-        throw new Error("Invalid response format");
+        localStorage.removeItem("phoneNumber");
       }
+
+      setOpenSnackbar(true);
+
+      setTimeout(() => {
+        navigate("/organization/organization-home");
+      }, 1500);
+      console.log("Sign in successful");
     } catch (error) {
-      console.error(
-        "Login error details:",
-        error.response?.data || error.message
-      );
+      console.error("Login error:", error.response || error);
       setError(
         error.response?.data?.message ||
-          error.response?.data?.detail ||
           "Invalid login credentials. Please try again."
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleSnackbarClose = () => {
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
     setOpenSnackbar(false);
   };
 
@@ -101,10 +113,22 @@ const VerifierSignIn = () => {
             fullWidth
             label="Password"
             variant="outlined"
-            type="password"
+            type={showPassword ? "text" : "password"} // Switch type
             className="mb-4"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <div className="flex justify-between items-center mb-4">
             <FormControlLabel
@@ -116,7 +140,11 @@ const VerifierSignIn = () => {
               }
               label="Remember me"
             />
-            <Link to="/forget-password">Forgot password?</Link>
+            <Link to="/">
+              <span className="underline hover:text-blue-600">
+                Forgot password?
+              </span>
+            </Link>
           </div>
 
           <Button
@@ -133,25 +161,18 @@ const VerifierSignIn = () => {
             <span className="text-gray-400 mx-2">or</span>
           </div>
 
-          <Button
-            fullWidth
-            color="primary"
-            className="h-12 bg-gray-950 rounded-md"
-          >
+          <Button fullWidth className="h-12 rounded-md bg-blue-">
             <img
               src="https://img.icons8.com/?size=100&id=17949&format=png&color=000000"
               className="h-4 w-4 "
             />
-            <span className="text-black font-semibold ml-3 ">
+            <span className="text-black font-semibold ml-3">
               Sign in with Google
             </span>
           </Button>
 
-          <p className="text-center mt-6 text-gray-600 font-semibold text-sm">
-            Don’t have an account? <br />
-            <Link to="/sign-up">
-              <span className="text-blue-600">Create a free account</span>
-            </Link>
+          <p className="text-left mt-6 text-gray-600 font-semibold text-center text-sm">
+            Don’t have an account?
           </p>
         </form>
       </div>
@@ -177,5 +198,4 @@ const VerifierSignIn = () => {
     </div>
   );
 };
-
 export default VerifierSignIn;
