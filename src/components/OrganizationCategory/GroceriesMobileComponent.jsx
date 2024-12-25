@@ -48,6 +48,16 @@ const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   </div>
 );
 
+const LoadingOverlay = () => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-lg font-semibold">Please wait...</p>
+      <p className="text-gray-600">Your image is being processed</p>
+    </div>
+  </div>
+);
+
 const CameraComponent = ({ onClose, onCapture, name, category }) => {
   const videoRef = React.useRef(null);
   const [stream, setStream] = useState(null);
@@ -236,6 +246,7 @@ const GroceriesMobileComponent = () => {
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [viewUploadedImages, setViewUploadedImages] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [donorInfo, setDonorInfo] = useState({
     name: "",
     category: "",
@@ -338,6 +349,7 @@ const GroceriesMobileComponent = () => {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
       const convertToBlob = async (dataUrl) => {
         const response = await fetch(dataUrl);
@@ -379,18 +391,22 @@ const GroceriesMobileComponent = () => {
 
       if (response.status === 200) {
         alert("Donation submitted successfully!");
-        window.location.reload(); // Reload the page after successful submission
+        window.location.reload();
       } else {
         throw new Error("Submission failed");
       }
     } catch (error) {
       console.error("Error submitting donation:", error);
       alert(`Failed to submit donation: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
+      {isLoading && <LoadingOverlay />}
+
       <header className="w-full py-4 bg-gray-200 text-center font-bold text-lg">
         Organization Dashboard
       </header>
@@ -519,10 +535,11 @@ const GroceriesMobileComponent = () => {
             uploadedStatus.groceries &&
             uploadedStatus.donation_img && (
               <button
-                className="mx-auto w-3/4 py-3 bg-red-500 text-white rounded-full text-sm font-semibold hover:bg-red-700 flex items-center justify-center gap-2"
+                className="mx-auto w-3/4 py-3 bg-red-500 text-white rounded-full text-sm font-semibold hover:bg-red-700 flex items-center justify-center gap-2 disabled:opacity-50"
                 onClick={handleSubmit}
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? "Processing..." : "Submit"}
               </button>
             )}
         </>
