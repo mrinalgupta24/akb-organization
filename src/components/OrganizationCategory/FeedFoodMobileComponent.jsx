@@ -204,7 +204,6 @@ const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
               src={imageData}
               alt="Captured"
               className="w-auto h-full object-contain rounded-md shadow-lg"
-              style={{ width: "250px", height: "auto" }}
             />
           </div>
         ) : (

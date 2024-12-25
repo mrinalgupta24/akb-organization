@@ -48,7 +48,6 @@ const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   </div>
 );
 
-
 const CameraComponent = ({ onClose, onCapture, name, category }) => {
   const videoRef = React.useRef(null);
   const [stream, setStream] = useState(null);
@@ -101,7 +100,6 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
     const video = videoRef.current;
 
     if (video) {
-      // Set canvas dimensions for portrait orientation
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
@@ -111,28 +109,24 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
         ctx.scale(-1, 1);
       }
 
-      // Draw the video frame to the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          // Draw the donor card at the top left of the canvas
-          const scale = 0.5; // Scale down the donor card
-          ctx.drawImage(
-            donorCardCanvas,
-            20, // Adjust the x position as needed
-            20, // Adjust the y position as needed
-            donorCardCanvas.width * scale,
-            donorCardCanvas.height * scale
-          );
-          const imageData = canvas.toDataURL("image/jpeg", 0.8);
-          onCapture && onCapture(imageData);
+          const scale = 0.8;
+          const cardWidth = donorCardCanvas.width * scale;
+          const cardHeight = donorCardCanvas.height * scale;
+          const x = (canvas.width - cardWidth) / 2;
+          const y = canvas.height - cardHeight - 40;
+
+          ctx.drawImage(donorCardCanvas, x, y, cardWidth, cardHeight);
+          const imageData = canvas.toDataURL("image/jpeg", 1.0);
+          onCapture(imageData);
         });
       } else {
-        console.error("Donor card overlay not found.");
-        const imageData = canvas.toDataURL("image/jpeg", 0.8);
-        onCapture && onCapture(imageData);
+        const imageData = canvas.toDataURL("image/jpeg", 1.0);
+        onCapture(imageData);
       }
     }
   };
