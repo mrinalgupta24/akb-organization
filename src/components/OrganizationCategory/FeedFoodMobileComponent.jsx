@@ -124,7 +124,7 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          const scale = 0.8;
+          const scale = 1.0;
           const cardWidth = donorCardCanvas.width * scale;
           const cardHeight = donorCardCanvas.height * scale;
           const x = (canvas.width - cardWidth) / 2;
