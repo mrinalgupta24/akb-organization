@@ -6,31 +6,31 @@ import html2canvas from "html2canvas";
 
 const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   <div
-    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[300px] p-4 bg-white shadow-lg rounded-lg"
+    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[250px] p-3 bg-white shadow-lg rounded-lg"
     id="donor-card-overlay"
   >
     <div className="flex flex-col items-center">
-      <div className="w-20 h-20 rounded-full bg-blue-200 flex items-center justify-center mb-4">
-        <div className="w-16 h-16 rounded-full bg-blue-400 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-blue-600" />
+      <div className="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mb-3">
+        <div className="w-12 h-12 rounded-full bg-blue-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-blue-600" />
         </div>
       </div>
-      <h1 className="text-lg font-bold text-blue-900 mb-2">AKB FOUNDATION</h1>
-      <div className=" text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
-        {"GIVE GROCERIES TO POOR"}
+      <h1 className="text-md font-bold text-blue-900 mb-1">AKB FOUNDATION</h1>
+      <div className="text-blue-900 py-1 px-3 font-bold text-xs rounded-full mb-1">
+        {"PROVIDE GROCERIES TO POOR"}
       </div>
-      <p className="text-sm text-center font-bold uppercase text-blue-900 mb-1">
+      <p className="text-xs text-center font-bold uppercase text-blue-900 mb-1">
         {name || "DONOR NAME"}
       </p>
-      <p className="text-xs text-center text-black italic font-semibold mb-4">
+      <p className="text-xs text-center text-black italic font-semibold mb-3">
         Making Change Together
       </p>
-      <div className="text-sm text-center text-blue-900 font-medium">
+      <div className="text-xs text-center text-blue-900 font-medium">
         <a
           href={website || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="block underline mb-2"
+          className="block underline mb-1"
         >
           {website || "Website"}
         </a>
@@ -38,13 +38,11 @@ const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
           href={`https://instagram.com/${instagram || ""}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="block underline mb-2"
+          className="block underline mb-1"
         >
           {instagram ? `@${instagram}` : "Instagram"}
         </a>
-        <p className="block">
-          {phoneNo || "Phone Number"}
-        </p>
+        <p className="block">{phoneNo || "Phone Number"}</p>
       </div>
     </div>
   </div>
