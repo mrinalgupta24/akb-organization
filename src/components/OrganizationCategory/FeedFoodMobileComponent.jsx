@@ -16,7 +16,8 @@ const LoadingOverlay = () => (
 
 const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   <div
-    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[250px] p-3 bg-white shadow-lg rounded-lg"
+    className="absolute left-1/2 -translate-x-1/2 w-[250px] p-3 bg-white shadow-lg rounded-lg"
+    style={{ bottom: "40px" }} // Fixed bottom position
     id="donor-card-overlay"
   >
     <div className="flex flex-col items-center">
@@ -104,7 +105,6 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       prevMode === "environment" ? "user" : "environment"
     );
   };
-
   const handleCapture = () => {
     const canvas = document.createElement("canvas");
     const video = videoRef.current;
@@ -114,6 +114,7 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
 
+      // Handle mirroring for front camera
       if (facingMode === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
@@ -124,13 +125,16 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          const scale = 1.5;
+          // Calculate consistent positioning
+          const scale = 1.3;
           const cardWidth = donorCardCanvas.width * scale;
           const cardHeight = donorCardCanvas.height * scale;
           const x = (canvas.width - cardWidth) / 2;
-          const y = canvas.height - cardHeight - 40;
+          const y = canvas.height - cardHeight - 40; // Consistent with CSS bottom: 40px
 
+          ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
           ctx.drawImage(donorCardCanvas, x, y, cardWidth, cardHeight);
+
           const imageData = canvas.toDataURL("image/jpeg", 1.0);
           onCapture(imageData);
         });
@@ -140,7 +144,6 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       }
     }
   };
-
   return (
     <div className="flex flex-col items-center w-full h-full">
       <div className="relative w-full h-[75vh]">

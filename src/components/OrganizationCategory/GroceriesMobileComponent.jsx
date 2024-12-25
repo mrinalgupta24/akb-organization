@@ -6,7 +6,8 @@ import html2canvas from "html2canvas";
 
 const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   <div
-    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[250px] p-3 bg-white shadow-lg rounded-lg"
+    className="absolute left-1/2 -translate-x-1/2 w-[250px] p-3 bg-white shadow-lg rounded-lg"
+    style={{ bottom: "40px" }} // Fixed bottom position
     id="donor-card-overlay"
   >
     <div className="flex flex-col items-center">
@@ -17,7 +18,7 @@ const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
       </div>
       <h1 className="text-md font-bold text-blue-900 mb-1">AKB FOUNDATION</h1>
       <div className="text-blue-900 py-1 px-3 font-bold text-xs rounded-full mb-1">
-        {"PROVIDE GROCERIES TO POOR"}
+        {"PROVIDE GRCOERIES TO POOR"}
       </div>
       <p className="text-xs text-center font-bold uppercase text-blue-900 mb-1">
         {name || "DONOR NAME"}
@@ -114,6 +115,7 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
 
+      // Handle mirroring for front camera
       if (facingMode === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
@@ -124,13 +126,16 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
+          // Calculate consistent positioning
           const scale = 1.5;
           const cardWidth = donorCardCanvas.width * scale;
           const cardHeight = donorCardCanvas.height * scale;
           const x = (canvas.width - cardWidth) / 2;
-          const y = canvas.height - cardHeight - 40;
+          const y = canvas.height - cardHeight - 40; // Consistent with CSS bottom: 40px
 
+          ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
           ctx.drawImage(donorCardCanvas, x, y, cardWidth, cardHeight);
+
           const imageData = canvas.toDataURL("image/jpeg", 1.0);
           onCapture(imageData);
         });
@@ -152,21 +157,20 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
             facingMode === "user" ? "scale-x-[-1]" : ""
           }`}
         />
-        {/* Render Donor Card Overlay on top of the camera video */}
         <DonorCardOverlay name={name} category={category} />
         <button
           onClick={toggleCamera}
           className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-lg"
           aria-label="Switch Camera"
         >
-          <RotateCw size={20} className="text-[#407daa]" />
+          <RotateCw size={20} className="text-blue-600" />
         </button>
       </div>
 
-      <div className="flex gap-4 mt-4 mb-4">
+      <div className="flex gap-4 mt-2 mb-4">
         <button
           onClick={handleCapture}
-          className="px-6 py-2 bg-[#407daa] text-white rounded-full font-semibold hover:bg-blue-700"
+          className="px-6 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700"
         >
           Capture
         </button>
