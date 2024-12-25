@@ -4,33 +4,43 @@ import api from "../../api";
 import img1 from "../../assets/fundraising.png";
 import html2canvas from "html2canvas";
 
+const LoadingOverlay = () => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-lg font-semibold">Please wait...</p>
+      <p className="text-gray-600">Your image is being processed</p>
+    </div>
+  </div>
+);
+
 const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   <div
-    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[300px] p-4 bg-white shadow-lg rounded-lg"
+    className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[250px] p-3 bg-white shadow-lg rounded-lg"
     id="donor-card-overlay"
   >
     <div className="flex flex-col items-center">
-      <div className="w-20 h-20 rounded-full bg-blue-200 flex items-center justify-center mb-4">
-        <div className="w-16 h-16 rounded-full bg-blue-400 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-blue-600" />
+      <div className="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mb-3">
+        <div className="w-12 h-12 rounded-full bg-blue-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-blue-600" />
         </div>
       </div>
-      <h1 className="text-lg font-bold text-blue-900 mb-2">AKB FOUNDATION</h1>
-      <div className="bg-blue-100 text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
-        {"FEED A STRAY CAT / DOG"}
+      <h1 className="text-md font-bold text-blue-900 mb-1">AKB FOUNDATION</h1>
+      <div className="text-blue-900 py-1 px-3 font-bold text-xs rounded-full mb-1">
+        {"FEED A STRAY DOG / CAT"}
       </div>
-      <p className="text-sm text-center font-bold uppercase text-blue-900 mb-1">
+      <p className="text-xs text-center font-bold uppercase text-blue-900 mb-1">
         {name || "DONOR NAME"}
       </p>
-      <p className="text-xs text-center text-black italic font-semibold mb-4">
+      <p className="text-xs text-center text-black italic font-semibold mb-3">
         Making Change Together
       </p>
-      <div className="text-sm text-center text-blue-900 font-medium">
+      <div className="text-xs text-center text-blue-900 font-medium">
         <a
           href={website || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="block underline mb-2"
+          className="block underline mb-1"
         >
           {website || "Website"}
         </a>
@@ -38,18 +48,15 @@ const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
           href={`https://instagram.com/${instagram || ""}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="block underline mb-2"
+          className="block underline mb-1"
         >
           {instagram ? `@${instagram}` : "Instagram"}
         </a>
-        <p className="block">
-          {phoneNo || "Phone Number"}
-        </p>
+        <p className="block">{phoneNo || "Phone Number"}</p>
       </div>
     </div>
   </div>
 );
-
 
 const CameraComponent = ({ onClose, onCapture, name, category }) => {
   const videoRef = useRef(null);
@@ -117,11 +124,11 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          const scale = 0.8; // Increased scale for larger overlay
+          const scale = 0.8;
           const cardWidth = donorCardCanvas.width * scale;
           const cardHeight = donorCardCanvas.height * scale;
-          const x = (canvas.width - cardWidth) / 2; // Center horizontally
-          const y = canvas.height - cardHeight - 40; // Position from bottom with padding
+          const x = (canvas.width - cardWidth) / 2;
+          const y = canvas.height - cardHeight - 40;
 
           ctx.drawImage(donorCardCanvas, x, y, cardWidth, cardHeight);
           const imageData = canvas.toDataURL("image/jpeg", 1.0);
@@ -173,38 +180,57 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
   );
 };
 
-const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => (
-  <div className="flex flex-col items-center w-full h-full">
-    <div className="relative w-full h-[75vh] flex items-center justify-center">
-      {imageData ? (
-        <div className="relative w-full h-full flex justify-center items-center">
-          <img
-            src={imageData}
-            alt="Captured"
-            className="w-auto h-full object-contain rounded-md shadow-lg"
-          />
-        </div>
-      ) : (
-        <p>No image captured</p>
-      )}
-    </div>
+const CapturedImageComponent = ({ imageData, onRetake, onAccept }) => {
+  const [isLoading, setIsLoading] = useState(false);
 
-    <div className="flex gap-4 mt-4">
-      <button
-        onClick={onRetake}
-        className="px-6 py-2 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600"
-      >
-        Retake
-      </button>
-      <button
-        onClick={onAccept}
-        className="px-6 py-2 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600"
-      >
-        Accept
-      </button>
+  const handleAcceptClick = async () => {
+    setIsLoading(true);
+    try {
+      await onAccept();
+    } catch (error) {
+      console.error("Error processing image:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center w-full h-full">
+      {isLoading && <LoadingOverlay />}
+      <div className="relative w-full h-[75vh] flex items-center justify-center">
+        {imageData ? (
+          <div className="relative w-full h-full flex justify-center items-center">
+            <img
+              src={imageData}
+              alt="Captured"
+              className="w-auto h-full object-contain rounded-md shadow-lg"
+              style={{ width: "250px", height: "auto" }}
+            />
+          </div>
+        ) : (
+          <p>No image captured</p>
+        )}
+      </div>
+
+      <div className="flex gap-4 mt-4">
+        <button
+          onClick={onRetake}
+          className="px-6 py-2 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600"
+          disabled={isLoading}
+        >
+          Retake
+        </button>
+        <button
+          onClick={handleAcceptClick}
+          className="px-6 py-2 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600"
+          disabled={isLoading}
+        >
+          Accept
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ImagesGrid = ({ images }) => (
   <div className="w-full px-4">
@@ -266,7 +292,11 @@ const FeedStrayMobileComponent = () => {
 
     const handlePopState = (event) => {
       event.preventDefault();
-      setShowExitConfirmation(true);
+      if (viewUploadedImages) {
+        setViewUploadedImages(false);
+      } else {
+        setShowExitConfirmation(true);
+      }
       window.history.pushState(null, null, window.location.href);
     };
 
@@ -276,7 +306,7 @@ const FeedStrayMobileComponent = () => {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, []);
+  }, [viewUploadedImages]);
 
   const handleExit = async () => {
     try {
@@ -311,6 +341,7 @@ const FeedStrayMobileComponent = () => {
       window.location.href = "/organization/feed-stray";
     } catch (error) {
       console.error("Error uploading image:", error);
+      window.alert("Error uploading image. Please try again.");
     }
   };
 

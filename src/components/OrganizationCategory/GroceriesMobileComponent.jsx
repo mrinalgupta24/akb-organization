@@ -16,7 +16,7 @@ const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
         </div>
       </div>
       <h1 className="text-lg font-bold text-blue-900 mb-2">AKB FOUNDATION</h1>
-      <div className="bg-blue-100 text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
+      <div className=" text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
         {"GIVE GROCERIES TO POOR"}
       </div>
       <p className="text-sm text-center font-bold uppercase text-blue-900 mb-1">

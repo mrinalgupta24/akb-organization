@@ -91,7 +91,7 @@ const UploadBill = () => {
       if (response.status === 200) {
         console.log("File uploaded successfully");
         window.alert("File uploaded successfully");
-        navigate("/organization/organization-home");
+        navigate("/organization/volunteer-home");
       } else {
         console.error(
           "File upload failed",

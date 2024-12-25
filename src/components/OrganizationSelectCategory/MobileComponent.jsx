@@ -11,6 +11,7 @@ const MobileComponent = () => {
       navigate("/organization/organization-home");
     };
 
+    // Push a dummy state to history to detect back navigation
     window.history.pushState(null, null, window.location.pathname);
     window.addEventListener("popstate", handleBackButton);
 
@@ -40,14 +41,6 @@ const MobileComponent = () => {
           text="Feed for Stray Cats / Dogs"
           route="/organization/feed-stray"
         />
-        {/* <CategoryButton
-          text="Provide Medicines to the Poor"
-          route="/provide-medicines"
-        /> */}
-        {/* <CategoryButton
-          text="Sanitary Pads to Poor Girls"
-          route="/sanitary-pads"
-        /> */}
         <CategoryButton
           text="Groceries to Poor"
           route="/organization/groceries-to-poor"
