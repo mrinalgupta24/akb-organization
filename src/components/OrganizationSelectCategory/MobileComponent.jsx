@@ -1,8 +1,25 @@
-// MobileComponent.js
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MobileComponent = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Handle back button press
+    const handleBackButton = (e) => {
+      e.preventDefault();
+      navigate("/organization/organization-home");
+    };
+
+    window.history.pushState(null, null, window.location.pathname);
+    window.addEventListener("popstate", handleBackButton);
+
+    // Cleanup listener on component unmount
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, [navigate]);
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       {/* Header */}
@@ -15,8 +32,14 @@ const MobileComponent = () => {
         {/* Title */}
         <h2 className="text-center text-xl font-semibold">Select Category</h2>
         {/* Category Buttons */}
-        <CategoryButton text="Feed Food for Needy" route="/organization/feed-food" />
-        <CategoryButton text="Feed for Stray Cats / Dogs" route="/organization/feed-stray" />
+        <CategoryButton
+          text="Feed Food for Needy"
+          route="/organization/feed-food"
+        />
+        <CategoryButton
+          text="Feed for Stray Cats / Dogs"
+          route="/organization/feed-stray"
+        />
         {/* <CategoryButton
           text="Provide Medicines to the Poor"
           route="/provide-medicines"
@@ -25,7 +48,10 @@ const MobileComponent = () => {
           text="Sanitary Pads to Poor Girls"
           route="/sanitary-pads"
         /> */}
-        <CategoryButton text="Groceries to Poor" route="/organization/groceries-to-poor" />
+        <CategoryButton
+          text="Groceries to Poor"
+          route="/organization/groceries-to-poor"
+        />
       </div>
 
       {/* Footer */}

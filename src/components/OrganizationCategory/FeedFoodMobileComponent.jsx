@@ -4,7 +4,7 @@ import api from "../../api";
 import img1 from "../../assets/fundraising.png";
 import html2canvas from "html2canvas";
 
-const DonorCardOverlay = ({ name, category }) => (
+const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   <div
     className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[300px] p-4 bg-white shadow-lg rounded-lg"
     id="donor-card-overlay"
@@ -17,17 +17,39 @@ const DonorCardOverlay = ({ name, category }) => (
       </div>
       <h1 className="text-lg font-bold text-blue-900 mb-2">AKB FOUNDATION</h1>
       <div className="bg-blue-100 text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
-        FEED A HUNGRY STOMACH
+        {"FEED FOOD TO POOR"}
       </div>
       <p className="text-sm text-center font-bold uppercase text-blue-900 mb-1">
         {name || "DONOR NAME"}
       </p>
-      <p className="text-xs text-center text-black italic font-semibold">
+      <p className="text-xs text-center text-black italic font-semibold mb-4">
         Making Change Together
       </p>
+      <div className="text-sm text-center text-blue-900 font-medium">
+        <a
+          href={website || "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block underline mb-2"
+        >
+          {website || "Website"}
+        </a>
+        <a
+          href={`https://instagram.com/${instagram || ""}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block underline mb-2"
+        >
+          {instagram ? `@${instagram}` : "Instagram"}
+        </a>
+        <p className="block">
+          {phoneNo || "Phone Number"}
+        </p>
+      </div>
     </div>
   </div>
 );
+
 
 const CameraComponent = ({ onClose, onCapture, name, category }) => {
   const videoRef = useRef(null);
@@ -286,7 +308,7 @@ const FeedFoodMobileComponent = () => {
         type: "donation_img",
       });
       window.alert("Submission successful");
-      window.location.href = "/organization/select-donation-category";
+      window.location.href = "/organization/feed-food";
     } catch (error) {
       console.error("Error uploading image:", error);
     }

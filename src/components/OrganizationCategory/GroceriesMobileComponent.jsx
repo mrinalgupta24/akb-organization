@@ -4,7 +4,7 @@ import api from "../../api.js";
 import img1 from "../../assets/fundraising.png";
 import html2canvas from "html2canvas";
 
-const DonorCardOverlay = ({ name, category }) => (
+const DonorCardOverlay = ({ name, category, website, instagram, phoneNo }) => (
   <div
     className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[300px] p-4 bg-white shadow-lg rounded-lg"
     id="donor-card-overlay"
@@ -17,17 +17,39 @@ const DonorCardOverlay = ({ name, category }) => (
       </div>
       <h1 className="text-lg font-bold text-blue-900 mb-2">AKB FOUNDATION</h1>
       <div className="bg-blue-100 text-blue-900 py-1 px-4 font-bold text-xs rounded-full mb-2">
-        GIVE GROCERIES TO POOR
+        {"GIVE GROCERIES TO POOR"}
       </div>
       <p className="text-sm text-center font-bold uppercase text-blue-900 mb-1">
         {name || "DONOR NAME"}
       </p>
-      <p className="text-xs text-center text-black italic font-semibold">
+      <p className="text-xs text-center text-black italic font-semibold mb-4">
         Making Change Together
       </p>
+      <div className="text-sm text-center text-blue-900 font-medium">
+        <a
+          href={website || "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block underline mb-2"
+        >
+          {website || "Website"}
+        </a>
+        <a
+          href={`https://instagram.com/${instagram || ""}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block underline mb-2"
+        >
+          {instagram ? `@${instagram}` : "Instagram"}
+        </a>
+        <p className="block">
+          {phoneNo || "Phone Number"}
+        </p>
+      </div>
     </div>
   </div>
 );
+
 
 const CameraComponent = ({ onClose, onCapture, name, category }) => {
   const videoRef = React.useRef(null);
@@ -81,6 +103,7 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
     const video = videoRef.current;
 
     if (video) {
+      // Set canvas dimensions for portrait orientation
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
@@ -90,24 +113,28 @@ const CameraComponent = ({ onClose, onCapture, name, category }) => {
         ctx.scale(-1, 1);
       }
 
+      // Draw the video frame to the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const donorCard = document.getElementById("donor-card-overlay");
       if (donorCard) {
         html2canvas(donorCard).then((donorCardCanvas) => {
-          const scale = 0.8; // Increased scale for larger overlay
-          const cardWidth = donorCardCanvas.width * scale;
-          const cardHeight = donorCardCanvas.height * scale;
-          const x = (canvas.width - cardWidth) / 2; // Center horizontally
-          const y = canvas.height - cardHeight - 40; // Position from bottom with padding
-
-          ctx.drawImage(donorCardCanvas, x, y, cardWidth, cardHeight);
-          const imageData = canvas.toDataURL("image/jpeg", 1.0);
-          onCapture(imageData);
+          // Draw the donor card at the top left of the canvas
+          const scale = 0.5; // Scale down the donor card
+          ctx.drawImage(
+            donorCardCanvas,
+            20, // Adjust the x position as needed
+            20, // Adjust the y position as needed
+            donorCardCanvas.width * scale,
+            donorCardCanvas.height * scale
+          );
+          const imageData = canvas.toDataURL("image/jpeg", 0.8);
+          onCapture && onCapture(imageData);
         });
       } else {
-        const imageData = canvas.toDataURL("image/jpeg", 1.0);
-        onCapture(imageData);
+        console.error("Donor card overlay not found.");
+        const imageData = canvas.toDataURL("image/jpeg", 0.8);
+        onCapture && onCapture(imageData);
       }
     }
   };
@@ -291,18 +318,17 @@ const GroceriesMobileComponent = () => {
     setShowCamera(true);
   };
 
-  const handleAccept = async () => {
-    try {
-      await api.post("/api/upload_donation_images/", {
-        img: capturedImage,
-        donation_id: donorInfo.donation_id,
-        type: "donation_img",
-      });
-      window.alert("Submission successful");
-      window.location.href = "/organization/select-donation-category";
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
+  const handleAccept = () => {
+    setUploadedData((prevData) => ({
+      ...prevData,
+      [currentType]: capturedImage,
+    }));
+    setUploadedStatus((prevStatus) => ({
+      ...prevStatus,
+      [currentType]: true,
+    }));
+    setCapturedImage(null);
+    setShowCamera(false);
   };
 
   const handleFileUpload = (event, type) => {
